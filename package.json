@@ -2,5 +2,11 @@
   "name": "nodejs-vulnerable-api",
   "version": "0.0.0",
   "author": "Boris Bera <bera.boris@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "scripts": {
+    "start": "node api.js"
+  },
+  "dependencies": {
+    "express": "^4.16.2"
+  }
 }
