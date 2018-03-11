@@ -1,5 +1,6 @@
 const express = require('express')
 const morgan = require('morgan')
+const loremIpsum = require('lorem-ipsum')
 const mongo = require('mongodb').MongoClient
 const {promisify} = require('util')
 const crypto = require('crypto')
@@ -25,6 +26,16 @@ async function randomToken (size = 256) {
 app.use(morgan('dev'))
 app.use(express.json())
 
+app.get('/posts', toCallback(async (req, res) => {
+  const conn = await connect()
+  const postsCollection = conn.db('myapp').collection('posts')
+
+  const posts = await postsCollection.find()
+  res.json(await posts.toArray())
+
+  conn.close()
+}))
+
 app.post('/login', toCallback(async (req, res) => {
   const conn = await connect()
   const users = conn.db('myapp').collection('users')
@@ -35,7 +46,7 @@ app.post('/login', toCallback(async (req, res) => {
   })
 
   if (user) {
-    res.status(200).json({
+    res.status(201).json({
       sessionId: await randomToken(),
       username: user.username
     })
@@ -89,6 +100,13 @@ async function start (port) {
     {content: 'secret2', key: await randomToken()},
     {content: 'secret3', key: await randomToken()}
   ])
+
+  const posts = db.collection('posts')
+  await posts.deleteMany()
+  await posts.insertMany(Array.from(Array(10)).map(() => ({
+    title: loremIpsum({units: 'sentences', count: 1}),
+    content: loremIpsum({units: 'paragraphs', count: 5})
+  })))
 
   conn.close()
 
