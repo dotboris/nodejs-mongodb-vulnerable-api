@@ -59,27 +59,6 @@ app.post('/login', toCallback(async (req, res) => {
   conn.close()
 }))
 
-app.get('/secrets', toCallback(async (req, res) => {
-  if (!req.query.key) {
-    res.status(400).json({
-      error: 'Please specify a `key`'
-    })
-    return
-  }
-
-  const conn = await connect()
-  const secrets = conn.db('myapp').collection('secrets')
-
-  const secret = await secrets.findOne({key: req.query.key})
-  if (secret) {
-    res.json(secret)
-  } else {
-    res.status(404).end()
-  }
-
-  conn.close()
-}))
-
 app.use((err, req, res, next) => {
   console.error(err.stack)
   res.status(500).send(err.stack)
@@ -95,14 +74,6 @@ async function start (port) {
     {username: 'bob', password: 'P@ssw0rd1'},
     {username: 'alice', password: 'iheartcats'},
     {username: 'admin', password: 'supersecure'}
-  ])
-
-  const secrets = db.collection('secrets')
-  await secrets.deleteMany()
-  await secrets.insertMany([
-    {content: 'secret1', key: await randomToken(20)},
-    {content: 'secret2', key: await randomToken(20)},
-    {content: 'secret3', key: await randomToken(20)}
   ])
 
   const posts = db.collection('posts')
