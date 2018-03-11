@@ -81,7 +81,7 @@ async function start (port) {
 
   const posts = db.collection('posts')
   await posts.deleteMany()
-  await posts.insertMany(Array.from(Array(10)).map(() => ({
+  await posts.insertMany(Array.from(Array(5)).map(() => ({
     title: loremIpsum({units: 'sentences', count: 1}),
     content: loremIpsum({units: 'paragraphs', count: 5})
   })))
