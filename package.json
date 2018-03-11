@@ -9,6 +9,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "dotenv": "^5.0.1",
     "express": "^4.16.2",
     "lorem-ipsum": "^1.0.4",
     "mongodb": "^3.0.4",
