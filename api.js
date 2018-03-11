@@ -59,11 +59,6 @@ app.post('/login', toCallback(async (req, res) => {
   conn.close()
 }))
 
-app.use((err, req, res, next) => {
-  console.error(err.stack)
-  res.status(500).send(err.stack)
-})
-
 app.get('/secrets', toCallback(async (req, res) => {
   if (!req.query.key) {
     res.status(400).json({
@@ -84,6 +79,11 @@ app.get('/secrets', toCallback(async (req, res) => {
 
   conn.close()
 }))
+
+app.use((err, req, res, next) => {
+  console.error(err.stack)
+  res.status(500).send(err.stack)
+})
 
 async function start (port) {
   const conn = await connect()
