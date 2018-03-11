@@ -2,6 +2,8 @@ const express = require('express')
 const morgan = require('morgan')
 const mongo = require('mongodb').MongoClient
 const {promisify} = require('util')
+const crypto = require('crypto')
+const randomBytes = promisify(crypto.randomBytes)
 
 const app = express()
 
@@ -13,6 +15,11 @@ function toCallback (asyncMiddleware) {
 
 async function connect () {
   return mongo.connect(process.env.MONGO_URL || 'mongodb://localhost:27017')
+}
+
+async function randomToken (size = 256) {
+  const bytes = await randomBytes(size)
+  return bytes.toString('hex')
 }
 
 app.use(morgan('dev'))
@@ -28,9 +35,12 @@ app.post('/login', toCallback(async (req, res) => {
   })
 
   if (user) {
-    res.status(200).send(`Welcome ${user.username}!`).end()
+    res.status(200).json({
+      sessionId: await randomToken(),
+      username: user.username
+    })
   } else {
-    res.status(401).send('Nope!').end()
+    res.status(401).end()
   }
 
   conn.close()
@@ -70,9 +80,9 @@ async function start (port) {
   const secrets = db.collection('secrets')
   await secrets.deleteMany()
   await secrets.insertMany([
-    {content: 'secret1', key: 'niCWGLNWd6jFQAk2dFvP'},
-    {content: 'secret2', key: 'BOARSGIKodcLV4nbOb8d'},
-    {content: 'secret3', key: 'fv5r1lbgSIiDvuMI3Ght'}
+    {content: 'secret1', key: await randomToken()},
+    {content: 'secret2', key: await randomToken()},
+    {content: 'secret3', key: await randomToken()}
   ])
 
   conn.close()
