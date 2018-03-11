@@ -64,7 +64,9 @@ app.use((err, req, res, next) => {
 
 app.get('/secrets', toCallback(async (req, res) => {
   if (!req.query.key) {
-    res.status(400).send('Please specify a key').end()
+    res.status(400).json({
+      error: 'Please specify a `key`'
+    })
     return
   }
 
