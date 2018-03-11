@@ -8,6 +8,9 @@ const {promisify} = require('util')
 const crypto = require('crypto')
 const randomBytes = promisify(crypto.randomBytes)
 
+// const {Validator, ValidationError} = require('express-json-validator-middleware')
+// const validator = new Validator({allErrors: true})
+
 const app = express()
 
 function toCallback (asyncMiddleware) {
