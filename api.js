@@ -11,11 +11,15 @@ function toCallback (asyncMiddleware) {
   }
 }
 
+async function connect () {
+  return mongo.connect(process.env.MONGO_URL || 'mongodb://localhost:27017')
+}
+
 app.use(morgan('dev'))
 app.use(express.json())
 
 app.post('/login', toCallback(async (req, res) => {
-  const conn = await mongo.connect(process.env.MONGO_URL || 'mongodb://localhost:27017')
+  const conn = await connect()
   const users = conn.db('myapp').collection('users')
 
   const user = await users.findOne({
@@ -38,7 +42,7 @@ app.get('/secrets', toCallback(async (req, res) => {
     return
   }
 
-  const conn = await mongo.connect(process.env.MONGO_URL || 'mongodb://localhost:27017')
+  const conn = await connect()
   const secrets = conn.db('myapp').collection('secrets')
 
   const secret = await secrets.findOne({key: req.query.key})
@@ -51,9 +55,8 @@ app.get('/secrets', toCallback(async (req, res) => {
   conn.close()
 }))
 
-;(async () => {
-  // prepopulate db
-  const conn = await mongo.connect(process.env.MONGO_URL || 'mongodb://localhost:27017')
+async function start (port) {
+  const conn = await connect()
   const db = conn.db('myapp')
 
   const users = db.collection('users')
@@ -74,12 +77,15 @@ app.get('/secrets', toCallback(async (req, res) => {
 
   conn.close()
 
-  // start the webserver
-  await promisify(app.listen.bind(app))(parseInt(process.env.PORT || 3000))
+  // start the webserver. Don't mind the promise magic
+  await promisify(app.listen.bind(app))(port)
 
   console.log('App is up and running :)')
-})().catch(err => {
-  console.error('Setup failed :(')
-  console.error(err.stack)
-  process.exit(1)
-})
+}
+
+start(parseInt(process.env.PORT || 3000))
+  .catch(err => {
+    console.error('Setup failed :(')
+    console.error(err.stack)
+    process.exit(1)
+  })
