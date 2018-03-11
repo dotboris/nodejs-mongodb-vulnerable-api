@@ -100,9 +100,9 @@ async function start (port) {
   const secrets = db.collection('secrets')
   await secrets.deleteMany()
   await secrets.insertMany([
-    {content: 'secret1', key: await randomToken()},
-    {content: 'secret2', key: await randomToken()},
-    {content: 'secret3', key: await randomToken()}
+    {content: 'secret1', key: await randomToken(20)},
+    {content: 'secret2', key: await randomToken(20)},
+    {content: 'secret3', key: await randomToken(20)}
   ])
 
   const posts = db.collection('posts')
